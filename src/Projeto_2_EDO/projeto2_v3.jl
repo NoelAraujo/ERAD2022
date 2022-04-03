@@ -1,5 +1,4 @@
 using DifferentialEquations, Random, LinearAlgebra, BenchmarkTools
-using TensorOperations # uso tensores
 
 function get_G(N)
     r = rand(N, 3)
