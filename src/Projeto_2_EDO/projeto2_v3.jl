@@ -9,19 +9,21 @@ function get_G(N)
 
     return G
 end
+"""
+    - posso colocar @views na criação da função
+"""
+@views function estados_atomicos_v3(du, u, p, t)
+    G, Ω, Δ, N, Γ, _temp1 = p
 
-function estados_atomicos_v3(du, u, p, t)
-    G, Ωₙ, Δ, N, Γ, _temp1 = p
-
-    βₙ = @views u[1:N]
-    zₙ = @views u[N+1:end]
+    β = u[1:N]
+    z = u[N+1:end]
     
     # Removo a somatória e converto em  multiplicação matricial FORA do loop
-    mul!(_temp1, G, βₙ) # _temp1 = G*βₙ
+    mul!(_temp1, G, β) # _temp1 = G*βₙ
     for j=1:N
-        termo1 = (im*Δ - Γ/2)*βₙ[j]
-        termo2 = 0.5*im*Ωₙ[j]*zₙ[j]
-        termo3 = _temp1[j]*zₙ[j]
+        termo1 = (im*Δ - Γ/2)*β[j]
+        termo2 = 0.5*im*Ω[j]*z[j]
+        termo3 = _temp1[j]*z[j]
         du[j] = termo1 + termo2  - termo3
     end
     
@@ -29,11 +31,11 @@ function estados_atomicos_v3(du, u, p, t)
     # _temp2 .= (G*βₙ .- diag(G).*βₙ) 
 
     # Mas a diagonal já é nula, então não preciso fazer nada,
-    # pois _temp2 seria equivalente a _temp1
+    # pois '_temp2' já é equivalente a '_temp1'
     for j=1:N
-        termo1 = im*conj(Ωₙ[j])*βₙ[j] - im*Ωₙ[j]*conj(βₙ[j])
-        termo2 = Γ*(1 + zₙ[j])
-        termo3 = _temp1[j]*conj(βₙ[j])
+        termo1 = im*conj(Ω[j])*β[j] - im*Ω[j]*conj(β[j])
+        termo2 = Γ*(1 + z[j])
+        termo3 = _temp1[j]*conj(β[j]) # apenas utilizo a variavel _temp1 já calculada
         du[N+j] = termo1 - termo2  + (2/Γ)*(  termo3 +  conj.(termo3)  )
     end 
     
@@ -44,15 +46,15 @@ const Γ = 1
 N = 100
 
 Random.seed!(2022)
-
-
 G = get_G(N)
-Ωₙ = rand(ComplexF64, N)
-Δ = rand()
-_temp1 = similar(Ωₙ)
-p = G, Ωₙ, Δ, N, Γ, _temp1
+T = eltype(G)
 
-u0 = [zeros(ComplexF64, N); -ones(ComplexF64, N)]
+Ω = rand(T, N)
+Δ = rand()
+_temp1 = similar(Ω)
+p = G, Ω, Δ, N, Γ, _temp1
+
+u0 = [zeros(T, N); -ones(T, N)]
 tmin, tmax = 0.0, 10.0
 prob_v3 = ODEProblem( estados_atomicos_v3, u0, (tmin, tmax), p);
 

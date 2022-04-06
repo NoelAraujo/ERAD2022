@@ -1,9 +1,7 @@
+using Images
 """
     Faço uma divisão explicita por Float64 para o calculo das médias
 """
-
-using Images
-
 function extrairBordas_v3!(originalImage, newImage, threshold)
     height, width = size(originalImage)
     for x = 2:height
@@ -26,7 +24,7 @@ function extrairBordas_v3!(originalImage, newImage, threshold)
     return nothing
 end
 
-originalImage = load("ERAD2022/src/Projeto_4_ProcessamentoImagem/image2.png")
+originalImage = load("src/Projeto_4_ProcessamentoImagem/image2.png")
 newImage = deepcopy(originalImage)
 threshold = 0.02
 
@@ -36,6 +34,6 @@ threshold = 0.02
 using BenchmarkTools
 @benchmark extrairBordas_v3!(originalImage, newImage, threshold)
 
-## não tem mais o que fazer a nivel de instruções
+## não tem mais o que fazer para o código sequencial
 @profview extrairBordas_v3!(originalImage, newImage, threshold)
 

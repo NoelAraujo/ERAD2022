@@ -2,8 +2,8 @@ using LinearAlgebra, MKL, Random, ThreadsX
 
 
 """
-    (11) use multi-threading of `ThreadsX.mapreduce` 
-    (12) add `@inbounds`
+    (12) use multi-threading of `ThreadsX.mapreduce` to transform double loop into a sum-like expression
+    (13) add `@inbounds` to tell the compiler to disable out of memory checking
 """
 @views function scattering_v6(β, n̂, r)
     N = length(β)
@@ -30,14 +30,10 @@ using LinearAlgebra, MKL, Random, ThreadsX
         end
     end
      
-    intensity = ThreadsX.mapreduce(+, 1:number_configurations) do count
-        (  
-           begin 
-                @inbounds dot_n_r = n̂[1]*rₙₘ[1, count] + n̂[2]*rₙₘ[2, count] + n̂[3]*rₙₘ[3, count]
-                @inbounds βₙₘ[count]*cis( dot_n_r )
-           end 
-        )
-    end
+    intensity = ThreadsX.mapreduce(+, 1:number_configurations) do count # (12)
+                    @inbounds dot_n_r = n̂[1]*rₙₘ[1, count] + n̂[2]*rₙₘ[2, count] + n̂[3]*rₙₘ[3, count] # (13)
+                    @inbounds βₙₘ[count]*cis( dot_n_r ) # (13)
+                end
     return 2real(intensity)
 end
 

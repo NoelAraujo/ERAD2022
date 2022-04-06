@@ -1,10 +1,3 @@
-"""
-    Usar Processos e Não Threads
-        Tenho que dizer qual a região ( Δx e Δy ) cada processo deve trabalhar
-        Por algum motivo estranho, tenho que inverter os indices x e y
-            pois 'height, width = size(originalImage)' não esta retornando o que esperava
-"""
-
 using Distributed
 addprocs(4, exeflags = `--threads 2`)
 # @everywhere begin 
@@ -14,29 +7,41 @@ addprocs(4, exeflags = `--threads 2`)
 @everywhere using SharedArrays
 @everywhere using Images
 
-@everywhere function extrairBordas_v5!(originalImage, newImage, threshold, cor, y_min_max, x_min_max)
-    @sync for x = x_min_max
-        Threads.@threads for y = y_min_max
-            currentPixel = originalImage[x,y]
-            leftPixel    = originalImage[x-1,y]
-            bottomPixel  = originalImage[x,y-1]
+@everywhere begin
+    """
+        Usar Processos com Threads
+        Tenho que especificar qual a região ( Δx e Δy ) cada processo deve trabalhar.
+        Esse detalhe tornará a tona um problema.
+            'height, width = size(originalImage)' não esta retornando o que esperava
+        
+        Não falei antes pois não era relevante para a discussão. Devem existir motivos para isso, contudo,
+        eu, o autor, não tenho experiẽncia com imagens e não conheço as convenções da área para justificar esse fato.
+    """
+    function extrairBordas_v5!(originalImage, newImage, threshold, cor, y_min_max, x_min_max)
+        @sync for x = x_min_max
+            Threads.@threads for y = y_min_max
+                currentPixel = originalImage[x,y]
+                leftPixel    = originalImage[x-1,y]
+                bottomPixel  = originalImage[x,y-1]
 
-            currentAverage= (red(currentPixel)+ green(currentPixel)+ blue(currentPixel))/3.0
-            leftAverage   = (red(leftPixel)   + green(leftPixel)   + blue(leftPixel))   /3.0
-            bottomAverage = (red(bottomPixel) + green(bottomPixel) + blue(bottomPixel)) /3.0
+                currentAverage= (red(currentPixel)+ green(currentPixel)+ blue(currentPixel))/3.0
+                leftAverage   = (red(leftPixel)   + green(leftPixel)   + blue(leftPixel))   /3.0
+                bottomAverage = (red(bottomPixel) + green(bottomPixel) + blue(bottomPixel)) /3.0
 
-            if abs(currentAverage-leftAverage) ≥ threshold || abs(currentAverage-bottomAverage) ≥ threshold
-                newImage[x,y] = cor[ myid()-1 ]
-            else
-                newImage[x,y] = RGBA(1,1,1.,1)
+                if abs(currentAverage-leftAverage) ≥ threshold || abs(currentAverage-bottomAverage) ≥ threshold
+                    newImage[x,y] = cor[ myid()-1 ]
+                else
+                    newImage[x,y] = RGBA(1,1,1.,1)
+                end
             end
         end
+        return nothing
     end
-    return nothing
 end
 
+include(pwd()*"/src/Projeto_4_ProcessamentoImagem/cores.jl")
+originalImage = load("src/Projeto_4_ProcessamentoImagem/image2.png")
 
-originalImage = load("ERAD2022/src/Projeto_4_ProcessamentoImagem/image2.png")
 # Preciso de uma variável compartilhada entre todos os processos locais: SharedArrays
 _height, _width = size(originalImage)
 originalImage_Shared  = SharedArray{eltype(originalImage)}(_height, _width);

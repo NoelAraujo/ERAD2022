@@ -1,6 +1,6 @@
 using Images
 
-originalImage = load("ERAD2022/src/Projeto_4_ProcessamentoImagem/image2.png")
+originalImage = load("src/Projeto_4_ProcessamentoImagem/image2.png")
 newImage = deepcopy(originalImage)
 height, width = size(originalImage)
 

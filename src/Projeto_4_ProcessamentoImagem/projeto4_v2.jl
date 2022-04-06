@@ -1,9 +1,8 @@
-"""
-    Apenas cria uma função com o Kernel da computação
-"""
-
 using Images
 
+"""
+    Apenas cria uma função com o MESMO CÓDIGO da versão 1
+"""
 function extrairBordas_v2!(originalImage, newImage, threshold)
     height, width = size(originalImage)
     for x = 2:height
@@ -26,7 +25,7 @@ function extrairBordas_v2!(originalImage, newImage, threshold)
     return nothing
 end
 
-originalImage = load("ERAD2022/src/Projeto_4_ProcessamentoImagem/image2.png")
+originalImage = load("src/Projeto_4_ProcessamentoImagem/image2.png")
 newImage = deepcopy(originalImage)
 threshold = 0.02
 
@@ -39,3 +38,4 @@ using BenchmarkTools
 # analisar onde posso melhorar com profiler
 @profview extrairBordas_v2!(originalImage, newImage, threshold)
 # problema: conversão de tipos Float64, para que ">=" não faça conversão
+# solução: evitamos as conversões

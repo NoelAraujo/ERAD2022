@@ -11,21 +11,21 @@ function get_G(N)
 end
 
 function estados_atomicos(du, u, p, t)
-    G, Ωₙ, Δ, N, Γ = p
+    G, Ω, Δ, N, Γ = p
 
-    βₙ = u[1:N]
-    zₙ = u[N+1:end]
+    β = u[1:N]
+    z = u[N+1:end]
 
     for j=1:N
-        termo1 = (im*Δ - Γ/2)*βₙ[j]
-        termo2 = 0.5*im*Ωₙ[j]*zₙ[j]
-        termo3 = sum( G[j,m]*βₙ[m] for m =1:N if j ≠ m  )*zₙ[j]
+        termo1 = (im*Δ - Γ/2)*β[j]
+        termo2 = 0.5*im*Ω[j]*z[j]
+        termo3 = sum( G[j,m]*β[m] for m =1:N if j ≠ m  )*z[j]
         du[j] = termo1 + termo2  - termo3
     end
     for j=1:N
-        termo1 = im*conj(Ωₙ[j])*βₙ[j] - im*Ωₙ[j]*conj(βₙ[j])
-        termo2 = Γ*(1 + zₙ[j])
-        termo3 = sum(G[j,m]*βₙ[m]*conj(βₙ[j]) for m =1:N if m≠j)
+        termo1 = im*conj(Ω[j])*β[j] - im*Ω[j]*conj(β[j])
+        termo2 = Γ*(1 + z[j])
+        termo3 = sum(G[j,m]*β[m]*conj(β[j]) for m =1:N if m≠j)
         du[N+j] = termo1 - termo2  + (2/Γ)*(  termo3 +  conj.(termo3)  )
     end 
     
@@ -36,15 +36,15 @@ const Γ = 1
 N = 100
 
 Random.seed!(2022)
-
-
 G = get_G(N)
-Ωₙ = rand(ComplexF64, N)
+T = eltype(G)
+
+Ω = rand(T, N)
 Δ = rand()
+p = G, Ω, Δ, N, Γ
 
-p = G, Ωₙ, Δ, N, Γ
 
-u0 = [zeros(ComplexF64, N); -ones(ComplexF64, N)]
+u0 = [zeros(T, N); -ones(T, N)]
 tmin, tmax = 0.0, 10.0
 prob = ODEProblem( estados_atomicos, u0, (tmin, tmax), p)
 

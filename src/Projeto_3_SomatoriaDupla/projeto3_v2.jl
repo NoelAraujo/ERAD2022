@@ -5,11 +5,11 @@ using LinearAlgebra, MKL, Random
    (2) Compute `conj(β[n])*β[m]` once
    (3) Avoid accessing position rₙ inside loop m (r_n = r[:, n])
 """
-@views function scattering_v2(β, n̂, r)
+@views function scattering_v2(β, n̂, r) # (1)
     N = length(β)
     intensity = ComplexF64(0)
     
-    βₙₘ = zeros(ComplexF64, N, N)
+    βₙₘ = zeros(ComplexF64, N, N) # (2)
     for n=1:N
         for m=1:N
             if n≠m
@@ -19,7 +19,7 @@ using LinearAlgebra, MKL, Random
     end
 
     for n=1:N
-        rₙ = r[:, n]
+        rₙ = r[:, n] # (3)
         for m=1:N
             if n≠m
                 rₘ = r[:, m]

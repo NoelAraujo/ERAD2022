@@ -1,10 +1,12 @@
+using Images
+# Algumas vezes o Caminho Relativo não identifica arquivos ou pastas.
+# Então precisa pegar o caminho atual com o `pwd()` - mesmo pwd do shell do linux
+include(pwd()*"/src/Projeto_4_ProcessamentoImagem/cores.jl")
+
 """
     Multithreading Nativo
         Cada thread tem uma cor diferente
 """
-
-using Images
-
 function extrairBordas_v4!(originalImage, newImage, threshold, cor)
     height, width = size(originalImage)
     @sync for x = 2:height # '@sync' wait to finish
@@ -31,7 +33,7 @@ function extrairBordas_v4!(originalImage, newImage, threshold, cor)
 end
 
 
-originalImage = load("ERAD2022/src/Projeto_4_ProcessamentoImagem/image2.png")
+originalImage = load("src/Projeto_4_ProcessamentoImagem/image2.png")
 newImage = deepcopy(originalImage)
 threshold = 0.02
 

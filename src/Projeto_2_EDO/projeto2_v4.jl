@@ -29,7 +29,7 @@ function estados_atomicos_v4(du, u, p, t)
 end
 
 const Γ = 1
-N = 1000
+N = 100
 
 Random.seed!(2022)
 

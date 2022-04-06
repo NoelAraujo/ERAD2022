@@ -9,7 +9,7 @@ using LinearAlgebra, Random
     N = length(β)
     intensity = ComplexF64(0)
     
-    βₙₘ = Array{eltype(β)}(undef, N,N)
+    βₙₘ = Array{eltype(β)}(undef, N,N) # (4)
     for n=1:N
         for m=1:N
             if n≠m
@@ -22,8 +22,10 @@ using LinearAlgebra, Random
         rₙ = r[:, n]
         for m=1:N
             if n≠m
-                rₘ = r[:, m]
-                intensity += βₙₘ[n,m]*cis( n̂⋅(rₙ-rₘ) )
+                rₙₘ =  rₙ - r[:, m]
+                dot_n_r = n̂[1]*rₙₘ[1] + n̂[2]*rₙₘ[2] + n̂[3]*rₙₘ[3] # (5)
+
+                intensity += βₙₘ[n,m]*cis( dot_n_r ) # (6)
             end
         end
     end
@@ -35,7 +37,7 @@ N = 3000
 Random.seed!(2022)
 β = rand(ComplexF64, N)
 sensor = rand(3); n̂ = sensor./norm(sensor)
-r = rand(3, N) # julia é 'collumn-major'
+r = rand(3, N)
 
 @time I_v3 = scattering_v3(β, n̂, r);
 
